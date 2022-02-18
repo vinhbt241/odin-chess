@@ -1,53 +1,58 @@
 require 'colorize'
 
 class Board
-  BLACK_SQUARE = "■"
-  WHITE_SQUARE = "□"
-
-  attr_reader :board
-
   def initialize()
     @board = init_board()
   end
 
   def init_board()
-    board = Array.new(8) { Array.new(8) }
+    board = Array.new(8) { Array.new(8, "  ") }
+  end
 
-    board = board.each_with_index.map do |row, index|
+  def render_board()
+    board = @board.each_with_index.map do |row, index|
       if index.even? 
         row = row.each_with_index.map do |pos, i|
           if i.even?
-            pos = "   ".black.on_white
+            pos = pos.on_white
           else
-            pos = "   ".black.on_magenta
+            pos = pos.on_magenta
           end
           pos
         end
       else
         row = row.each_with_index.map do |pos, i|
           if i.odd?
-            pos = "   ".black.on_white
+            pos = pos.on_white
           else
-            pos = "   ".black.on_magenta
+            pos = pos.on_magenta
           end
           pos
         end
       end
     end
-  end
 
-  def render_board()
-    board = ""
-    @board.each do |row|
-      board += row.join("")
-      board += "\n"
+    render_board = ""
+    board.each do |row|
+      render_board += row.join("")
+      render_board += "\n"
     end
-    puts board
+
+    puts render_board
   end
 
+  def add_piece(piece, coor_x, coor_y)
+    @board[coor_x][coor_y] = " #{piece}"
+  end
 end
 
-board = Board.new()
+# board = Board.new()
 
-board.render_board()
+# board.render_board()
+# board.add_piece("♔".black, 0, 0)
+# board.add_piece("♕".black, 0, 1)
+# board.add_piece("♜".black, 2, 3)
+# board.add_piece("♞".black, 2, 4)
+# puts " "
+# board.render_board()
 
