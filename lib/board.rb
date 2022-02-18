@@ -17,18 +17,18 @@ class Board
       if index.even? 
         row = row.each_with_index.map do |pos, i|
           if i.even?
-            pos = " ♔".black.on_white
+            pos = "   ".black.on_white
           else
-            pos = "  ".on_red
+            pos = "   ".black.on_magenta
           end
           pos
         end
       else
         row = row.each_with_index.map do |pos, i|
           if i.odd?
-            pos = "  ".on_white
+            pos = "   ".black.on_white
           else
-            pos = "  ".on_red
+            pos = "   ".black.on_magenta
           end
           pos
         end
@@ -36,11 +36,18 @@ class Board
     end
   end
 
+  def render_board()
+    board = ""
+    @board.each do |row|
+      board += row.join("")
+      board += "\n"
+    end
+    puts board
+  end
+
 end
 
 board = Board.new()
-board.board.each do |row|
-  row.each { |pos| print pos }
-  print "\n"
-end
+
+board.render_board()
 
