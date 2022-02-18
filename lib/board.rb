@@ -32,11 +32,15 @@ class Board
       end
     end
 
-    render_board = ""
-    board.each do |row|
-      render_board += row.join("")
+    coor_alphabet = []
+    "a".upto("h") { |c| coor_alphabet << c }
+    render_alphabet = "   #{coor_alphabet.join(" ")}\n"
+    render_board = render_alphabet
+    board.each_with_index do |row, index|
+      render_board += "#{8 - index} #{row.join("")} #{8 - index}"
       render_board += "\n"
     end
+    render_board += render_alphabet
 
     puts render_board
   end
@@ -46,13 +50,13 @@ class Board
   end
 end
 
-# board = Board.new()
+board = Board.new()
 
-# board.render_board()
-# board.add_piece("♔".black, 0, 0)
-# board.add_piece("♕".black, 0, 1)
-# board.add_piece("♜".black, 2, 3)
-# board.add_piece("♞".black, 2, 4)
-# puts " "
-# board.render_board()
+board.render_board()
+board.add_piece("♔".black, 0, 0)
+board.add_piece("♕".black, 0, 1)
+board.add_piece("♜".black, 2, 3)
+board.add_piece("♞".black, 2, 4)
+puts " "
+board.render_board()
 
