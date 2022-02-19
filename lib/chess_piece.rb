@@ -1,4 +1,6 @@
 class ChessPiece
+  attr_reader :symbol, :key_name
+  
   def initialize
     @symbol = ""
     @key_name = ""

@@ -8,6 +8,8 @@ require_relative '../lib/king.rb'
 require_relative '../lib/queen.rb'
 
 class Board
+  attr_accessor :board
+
   def initialize()
     @board = init_board()
   end
@@ -92,7 +94,4 @@ class Board
     board
   end
 end
-
-board = Board.new()
-board.render_board()
 
