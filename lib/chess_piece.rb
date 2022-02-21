@@ -1,7 +1,8 @@
 class ChessPiece
-  attr_reader :symbol, :key_name
+  attr_reader :symbol, :key_name, :color
   
-  def initialize
+  def initialize()
+    @color = ""
     @symbol = ""
     @key_name = ""
     @move_range = [[]]
