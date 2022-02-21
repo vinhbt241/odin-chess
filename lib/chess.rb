@@ -9,12 +9,15 @@ class ChessGame
   end
 
   def play_game()
-    @board.render_board()
-    puts ""
-    puts "#{@turn == 'w' ? "White" : "Black"}'s turn"
-    print "Type in your move: "
-    move = get_move()
-    decode_move(move)
+    while(true)
+      @board.render_board()
+      puts ""
+      puts "#{@turn == 'w' ? "White" : "Black"}'s turn"
+      print "Type in your move: "
+      move = get_move()
+      key_name, current_pos, dest_pos = decode_move(move)
+      move_piece(key_name, current_pos, dest_pos)
+    end
   end
 
   def get_move()
@@ -56,7 +59,36 @@ class ChessGame
     when "h" then 7
     end
 
-    [key_name, current_y, current_x, dest_y, dest_x]
+    [key_name, [current_y, current_x], [dest_y, dest_x]]
+  end
+
+  def move_piece(key_name, current_pos, dest_pos)
+    current_y, current_x = current_pos
+    dest_y, dest_x = dest_pos
+
+    if correct_piece?(key_name, current_pos)
+      piece = @board.board[current_y][current_x]
+
+      if piece.movable?(current_pos, dest_pos)
+        @board.board[dest_y][dest_x] = piece
+        @board.board[current_y][current_x] = nil
+      else
+        puts "Invalid move (piece can't move), please try again"
+      end
+    else
+      puts "Invalid chess piece, please try again"
+    end
+  end
+
+  def correct_piece?(key_name, current_pos)
+    current_y, current_x = current_pos
+    piece = @board.board[current_y][current_x]
+
+    unless piece.nil?
+      return true if piece.key_name == key_name && piece.color == @turn
+    end
+
+    false
   end
 end
 

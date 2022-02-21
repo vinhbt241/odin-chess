@@ -7,7 +7,7 @@ class Pawn < ChessPiece
     @color = color
     @key_name = "P"
     @symbol = @color == "w" ? "♙".black : "♟︎".black
-    @move_range = @color == "w" ? [[0, 1]] : [[0, -1]]
+    @move_range = @color == "w" ? [[-1, 0]] : [[1, 0]]
   end
 end
 
