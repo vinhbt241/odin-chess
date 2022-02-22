@@ -1,16 +1,19 @@
 require_relative '../lib/board.rb'
+require_relative '../lib/knight.rb'
+require_relative '../lib/bishop.rb'
+require_relative '../lib/rook.rb'
+require_relative '../lib/queen.rb'
 
 class ChessGame
   def initialize()
     @board = Board.new()
     @turn = 'w'
-
     play_game()
   end
 
   def play_game()
     while(true)
-      system 'clear'
+      # system 'clear'
       puts "        CHESS"
       @board.render_board()
       puts ""
@@ -22,6 +25,10 @@ class ChessGame
         key_name, current_pos, dest_pos = decode_move(move)
         valid_move = move_piece(key_name, current_pos, dest_pos)
       end
+
+      at_base, row, col = pawn_at_base()
+      transform_pawn(row, col) if at_base
+
       switch_turn()
     end
   end
@@ -158,6 +165,44 @@ class ChessGame
 
   def switch_turn()
     @turn = @turn == 'w' ? 'b' : 'w' 
+  end
+
+  def pawn_at_base()
+    base = @turn == "w"? @board.board[0] : @board.board[7]
+    row = @turn == "w"? 0 : 7
+    base.each_with_index do |piece, column|
+      unless piece.nil?
+        return [true, row, column] if piece.is_a?(Pawn) && piece.color == @turn
+      end
+    end
+    [false, nil, nil]
+  end
+
+  def transform_pawn(coor_y, coor_x)
+    puts "Class to promote"
+    puts "N: Knight"
+    puts "B: Bishop"
+    puts "R: Rook"
+    puts "Q: Queen"
+    print "Pawn's promotion requirement has been satisfied! Please type in character of class you want to promote: "
+    
+    promote_class = ""
+    loop do
+      promote_class = gets.chomp
+      break if promote_class.match?(/[NBRQ]/)
+      print "Invalid class, please try again: "
+    end
+
+    case promote_class
+    when "N" 
+      @board.board[coor_y][coor_x] = Knight.new(@turn)
+    when "B"  
+      @board.board[coor_y][coor_x] = Bishop.new(@turn)
+    when "R" 
+      @board.board[coor_y][coor_x] = Rook.new(@turn)
+    when "Q" 
+      @board.board[coor_y][coor_x] = Queen.new(@turn)
+    end
   end
 
 end
