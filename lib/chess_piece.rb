@@ -16,8 +16,11 @@ class ChessPiece
     @move_range.each do |move|
       r_y, r_x = move
       if @range_fixed == true
-        return true if n_x - x == r_x && n_y - y == r_y
+        if n_x - x == r_x && n_y - y == r_y
+          return true 
+        end
       else
+        return false if (n_y - y).abs > (r_y).abs || (n_x - x).abs > (r_x).abs
         vector_pos = Vector[n_y - y, n_x - x]
         vector_r = Vector[r_y, r_x]
         return true unless Vector.independent?(vector_pos, vector_r)

@@ -73,7 +73,7 @@ class Board
         print "Invalid index"
       end
     end
-    board[7] = board[0].each_with_index.map do |piece, index|
+    board[7] = board[7].each_with_index.map do |piece, index|
       case index
       when 0, 7
         piece = Rook.new('w')
