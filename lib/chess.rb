@@ -9,16 +9,24 @@ class ChessGame
   def initialize()
     @board = Board.new()
     @turn = 'w'
+    @message = ''
     play_game()
   end
 
   def play_game()
     while(true)
-      # system 'clear'
+      system 'clear'
       puts "        CHESS"
       @board.render_board()
       puts ""
+
+      unless @message == ''
+        puts @message 
+        @message = ''
+      end
+      
       puts "#{@turn == 'w' ? "White" : "Black"}'s turn"
+      
       valid_move = false
       until valid_move
         print "Type in your move: "
@@ -30,7 +38,7 @@ class ChessGame
       at_base, row, col = pawn_at_base()
       transform_pawn(row, col) if at_base
 
-      # puts "CHECKMATE" if checkmate?(dest_pos)
+      @message = "CHECKMATE!" if checkmate?(dest_pos)
 
       # switch_turn()
     end
@@ -99,7 +107,6 @@ class ChessGame
             end
           end
         end
-
         puts "Invalid move (piece can't move), please try again"
         return false
       end
@@ -190,7 +197,6 @@ class ChessGame
 
     unless piece.nil?
       if piece.is_a?(Pawn)
-        #Check with eat range of Pawn
         piece.eat_range.each do |move|
           r_y, r_x = move
             dest_y = current_y + r_y
@@ -214,53 +220,53 @@ class ChessGame
         else
           piece.move_range.each do |move|
             r_y, r_x = move
-
-            if r_y > 0
-              dest_y = current_y + 1 > 7 ? 7 : current_y + 1
-            elsif r_y < 0
-              dest_y = current_y - 1 < 0 ? 0 : current_y - 1
-            else
+            if r_y == 0
+              limit_y = current_y
+              limit_x = r_x > 0 ? 8 : -1
               dest_y = current_y
-            end
-            if r_x > 0
-              dest_x = current_x + 1 > 7 ? 7 : current_x + 1
-            elsif r_x < 0
-              dest_x = current_x - 1 < 0 ? 0 : current_x - 1
-            else
+              dest_x = r_x > 0 ? current_x + 1 : current_x - 1
+
+              until dest_y == limit_y && dest_x == limit_x
+                dest_piece = @board.board[dest_y][dest_x]
+                unless dest_piece.nil?
+                  return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                end
+                dest_x = r_x > 0 ? dest_x + 1 : dest_x - 1
+              end
+            elsif r_x == 0
+              limit_y = r_y > 0 ? 8 : -1
+              limit_x = current_x
+              dest_y = r_y > 0 ? current_y + 1 : current_y - 1
               dest_x = current_x
-            end
-            
-            limit_y = r_y > 0 ? (7) : (r_y < 0 ? 0 : current_y)
-            limit_x = r_x > 0 ? (7) : (r_x < 0 ? 0 : current_x)
-            
-            until (dest_y == limit_y) && (dest_x == limit_x)
-              unless dest_piece.nil?
-                return true if dest_piece.is_a?(King) && dest_piece.color != @turn
-                return false
-              end
 
-              if r_y > 0
-                dest_y = dest_y + 1 > 7 ? 7 : dest_y + 1
-              elsif r_y < 0
-                dest_y = dest_y - 1 < 0 ? 0 : dest_y - 1
+              until dest_y == limit_y && dest_x == limit_x
+                dest_piece = @board.board[dest_y][dest_x]
+                unless dest_piece.nil?
+                  return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                end
+                dest_y = r_y > 0 ? dest_y + 1 : dest_y - 1
               end
-              if r_x > 0
-                dest_x = dest_x + 1 > 7 ? 7 : dest_x + 1
-              elsif r_x < 0
-                dest_x = dest_x - 1 < 0 ? 0 : dest_x - 1
-              end
-            end
+            else
+              limit_y = r_y > 0 ? 8 : -1
+              limit_x = r_x > 0 ? 8 : -1
+              dest_y = r_y > 0 ? current_y + 1 : current_y - 1
+              dest_x = r_x > 0 ? current_x + 1 : current_x - 1
 
-            dest_piece = @board.board[dest_y][dest_x]
-            unless dest_piece.nil?
-              return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+              until dest_y == limit_y || dest_x == limit_x
+                dest_piece = @board.board[dest_y][dest_x]
+                unless dest_piece.nil?
+                  return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                end
+                dest_y = r_y > 0 ? dest_y + 1 : dest_y - 1
+                dest_x = r_x > 0 ? dest_x + 1 : dest_x - 1
+              end
             end
           end
         end
       end
     end
 
-    false
+    return false
   end
 
   def pieces_collide?(org_pos, dest_pos)
