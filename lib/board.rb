@@ -59,18 +59,18 @@ class Board
   def set_pieces(board)
     board[0] = board[0].each_with_index.map do |piece, index|
       case index
-      when 0, 7
-        piece = Rook.new('b')
-      when 1, 6
-        piece = Knight.new('b')
-      when 2, 5
-        piece = Bishop.new('b')
+      # when 0, 7
+      #   piece = Rook.new('b')
+      # when 1, 6
+      #   piece = Knight.new('b')
+      # when 2, 5
+      #   piece = Bishop.new('b')
       when 3 
         piece = King.new('b')
-      when 4
-        piece = Queen.new('b')
-      else
-        print "Invalid index"
+      # when 4
+      #   piece = Queen.new('b')
+      # else
+      #   print "Invalid index"
       end
     end
     board[7] = board[7].each_with_index.map do |piece, index|
@@ -90,7 +90,7 @@ class Board
       end
     end
     board[1].map! { |piece| piece = Pawn.new('b')  }  
-    board[6].map! { |piece| piece = Pawn.new('w')  } 
+    # board[6].map! { |piece| piece = Pawn.new('w')  } 
     board
   end
 end

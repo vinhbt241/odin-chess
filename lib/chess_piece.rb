@@ -1,7 +1,7 @@
 require 'matrix'
 
 class ChessPiece
-  attr_reader :symbol, :key_name, :color, :move_range
+  attr_reader :symbol, :key_name, :color, :move_range, :range_fixed
   
   def initialize()
     @@symbol = ""
@@ -20,10 +20,11 @@ class ChessPiece
           return true 
         end
       else
-        return false if (n_y - y).abs > (r_y).abs || (n_x - x).abs > (r_x).abs
-        vector_pos = Vector[n_y - y, n_x - x]
-        vector_r = Vector[r_y, r_x]
-        return true unless Vector.independent?(vector_pos, vector_r)
+        unless (n_y - y).abs > (r_y).abs || (n_x - x).abs > (r_x).abs
+          vector_pos = Vector[n_y - y, n_x - x]
+          vector_r = Vector[r_y, r_x]
+          return true unless Vector.independent?(vector_pos, vector_r)
+        end
       end
     end
     false

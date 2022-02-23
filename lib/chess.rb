@@ -24,7 +24,7 @@ class ChessGame
         move = get_move()
         key_name, current_pos, dest_pos = decode_move(move)
         valid_move = move_piece(key_name, current_pos, dest_pos)
-        checkmate?(dest_pos)
+        # checkmate?(dest_pos)
       end
 
       at_base, row, col = pawn_at_base()
@@ -119,49 +119,30 @@ class ChessGame
   def move(piece, current_pos, dest_pos)    
     current_y, current_x = current_pos
     dest_y, dest_x = dest_pos
-    original_y = current_y
-    original_x = current_x
+    piece = @board.board[current_y][current_x]
+    dest_piece = @board.board[dest_y][dest_x]
 
-    loop do 
-      old_y = current_y
-      old_x = current_x
+    if pieces_collide?(current_pos, dest_pos)
+      puts "Can't move. Allies or Enemies maybe on the way"
+      return false
+    end
 
-      if dest_y > current_y
-        current_y += 1
-      elsif dest_y < current_y
-        current_y -= 1
-      end
-      if dest_x > current_x
-        current_x += 1
-      elsif dest_x < current_x
-        current_x -= 1
-      end
-
-      unless @board.board[current_y][current_x].nil?
-        if current_y == dest_y && current_x == dest_x
-          dest_piece = @board.board[current_y][current_x]
-          if dest_piece.color == @turn
-            puts "Can't move, Ally at destination"
-            return false
-          else
-            @board.board[current_y][current_x] = piece
-            @board.board[original_y][original_x] = nil
-            piece.was_moved if piece.is_a?(Pawn)
-            return true
-          end
-        else
-          puts "Can't move. Allies or Enemies maybe on the way"
-          return false
-        end
-      end
-
-      if current_y == dest_y && current_x == dest_x
-        @board.board[current_y][current_x] = piece
-        @board.board[original_y][original_x] = nil
+    unless dest_piece.nil?
+      if dest_piece.color == @turn
+        puts "Can't move, Ally at destination"
+        return false
+      else
+        @board.board[dest_y][dest_x] = piece
+        @board.board[current_y][current_x] = nil
         piece.was_moved if piece.is_a?(Pawn)
         return true
       end
     end
+
+    @board.board[dest_y][dest_x] = piece
+    @board.board[current_y][current_x] = nil
+    piece.was_moved if piece.is_a?(Pawn)
+    return true
   end
 
   def switch_turn()
@@ -207,47 +188,57 @@ class ChessGame
   end
 
   def checkmate?(current_pos)
-    org_y, org_x = current_pos
-    piece = @board.board[org_y][org_x]
+    current_y, current_x = current_pos
+    piece = @board.board[current_y][current_x]
 
     unless piece.nil?
       if piece.is_a?(Pawn)
+        #Check with eat range of Pawn
       else
         if piece.range_fixed == true
           piece.move_range.each do |move|
             r_y, r_x = move
-            dest_y = org_y + r_y
-            dest_x = org_x + r_x
-            current_y = dest_y > org_y ? (org_y + 1) : (dest_y < org_y ? org_y - 1 : org_y)
-            current_x = dest_x > org_x ? (org_x + 1) : (dest_x < org_x ? org_y - 1 : org_x)
+            dest_y = current_y + r_y
+            dest_x = current_x + r_x
             piece_at_dest = @board.board[dest_y][dest_x]
             
             if piece_at_dest.is_a?(King)
-              until current_y == dest_y && current_x == dest_x
-                return false unless @board.board[current_y][current_x].nil?
-
-                if dest_y > current_y
-                  current_y += 1
-                elsif dest_y < current_y
-                  current_y -= 1
-                end
-                if dest_x > current_x
-                  current_x += 1
-                elsif dest_x < current_x
-                  current_x -= 1
-                end
-              end
+              return false if pieces_collide?([current_y, current_x], [dest_y, dest_x])
               puts "CHECKMATE"
               return true
             end
           end
         else
-          
+          # Range not fixed
         end
       end
     end
 
     false
+  end
+
+  def pieces_collide?(org_pos, dest_pos)
+    org_y, org_x = org_pos
+    dest_y, dest_x = dest_pos
+    current_y = dest_y > org_y ? (org_y + 1) : (dest_y < org_y ? org_y - 1 : org_y)
+    current_x = dest_x > org_x ? (org_x + 1) : (dest_x < org_x ? org_y - 1 : org_x)
+
+    until current_y == dest_y && current_x == dest_x
+      return true unless @board.board[current_y][current_x].nil?
+
+      if dest_y > current_y
+        current_y += 1
+      elsif dest_y < current_y
+        current_y -= 1
+      end
+      if dest_x > current_x
+        current_x += 1
+      elsif dest_x < current_x
+        current_x -= 1
+      end
+    end
+
+    return false
   end
 
 end
