@@ -131,11 +131,6 @@ class ChessGame
       if dest_piece.color == @turn
         puts "Can't move, Ally at destination"
         return false
-      else
-        @board.board[dest_y][dest_x] = piece
-        @board.board[current_y][current_x] = nil
-        piece.was_moved if piece.is_a?(Pawn)
-        return true
       end
     end
 
