@@ -89,7 +89,7 @@ class Board
         print "Invalid index"
       end
     end
-    board[1].map! { |piece| piece = Pawn.new('b')  }  
+    # board[1].map! { |piece| piece = Pawn.new('b')  }  
     # board[6].map! { |piece| piece = Pawn.new('w')  } 
     board
   end

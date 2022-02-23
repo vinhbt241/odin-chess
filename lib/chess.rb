@@ -3,6 +3,7 @@ require_relative '../lib/knight.rb'
 require_relative '../lib/bishop.rb'
 require_relative '../lib/rook.rb'
 require_relative '../lib/queen.rb'
+require 'matrix'
 
 class ChessGame
   def initialize()
@@ -24,11 +25,12 @@ class ChessGame
         move = get_move()
         key_name, current_pos, dest_pos = decode_move(move)
         valid_move = move_piece(key_name, current_pos, dest_pos)
-        # checkmate?(dest_pos)
       end
 
       at_base, row, col = pawn_at_base()
       transform_pawn(row, col) if at_base
+
+      # puts "CHECKMATE" if checkmate?(dest_pos)
 
       # switch_turn()
     end
@@ -189,6 +191,13 @@ class ChessGame
     unless piece.nil?
       if piece.is_a?(Pawn)
         #Check with eat range of Pawn
+        piece.eat_range.each do |move|
+          r_y, r_x = move
+            dest_y = current_y + r_y
+            dest_x = current_x + r_x
+            piece_at_dest = @board.board[dest_y][dest_x]
+            return true if piece_at_dest.is_a?(King)
+        end
       else
         if piece.range_fixed == true
           piece.move_range.each do |move|
@@ -199,12 +208,54 @@ class ChessGame
             
             if piece_at_dest.is_a?(King)
               return false if pieces_collide?([current_y, current_x], [dest_y, dest_x])
-              puts "CHECKMATE"
               return true
             end
           end
         else
-          # Range not fixed
+          piece.move_range.each do |move|
+            r_y, r_x = move
+
+            if r_y > 0
+              dest_y = current_y + 1 > 7 ? 7 : current_y + 1
+            elsif r_y < 0
+              dest_y = current_y - 1 < 0 ? 0 : current_y - 1
+            else
+              dest_y = current_y
+            end
+            if r_x > 0
+              dest_x = current_x + 1 > 7 ? 7 : current_x + 1
+            elsif r_x < 0
+              dest_x = current_x - 1 < 0 ? 0 : current_x - 1
+            else
+              dest_x = current_x
+            end
+            
+            limit_y = r_y > 0 ? (7) : (r_y < 0 ? 0 : current_y)
+            limit_x = r_x > 0 ? (7) : (r_x < 0 ? 0 : current_x)
+            
+            until (dest_y == limit_y) && (dest_x == limit_x)
+              unless dest_piece.nil?
+                return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                return false
+              end
+
+              if r_y > 0
+                dest_y = dest_y + 1 > 7 ? 7 : dest_y + 1
+              elsif r_y < 0
+                dest_y = dest_y - 1 < 0 ? 0 : dest_y - 1
+              end
+              if r_x > 0
+                dest_x = dest_x + 1 > 7 ? 7 : dest_x + 1
+              elsif r_x < 0
+                dest_x = dest_x - 1 < 0 ? 0 : dest_x - 1
+              end
+            end
+
+            dest_piece = @board.board[dest_y][dest_x]
+            unless dest_piece.nil?
+              return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+            end
+          end
         end
       end
     end
