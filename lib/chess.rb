@@ -24,12 +24,13 @@ class ChessGame
         move = get_move()
         key_name, current_pos, dest_pos = decode_move(move)
         valid_move = move_piece(key_name, current_pos, dest_pos)
+        checkmate?(dest_pos)
       end
 
       at_base, row, col = pawn_at_base()
       transform_pawn(row, col) if at_base
 
-      switch_turn()
+      # switch_turn()
     end
   end
 
@@ -78,30 +79,30 @@ class ChessGame
   def move_piece(key_name, current_pos, dest_pos)
     current_y, current_x = current_pos
     dest_y, dest_x = dest_pos
+    piece = @board.board[current_y][current_x]
 
     if correct_piece?(key_name, current_pos)
-      piece = @board.board[current_y][current_x]
       if piece.movable?(current_pos, dest_pos)
         return true if move(piece, current_pos, dest_pos)
         return false
       else
         if piece.is_a?(Pawn)
-          eat_range = piece.color == "w" ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]]
-          eat_range.each do |move|
+          piece.eat_range.each do |move|
             r_y, r_x = move
             if dest_x - current_x == r_x && dest_y - current_y == r_y
-              return true if move(piece, current_pos, dest_pos)
+              unless @board.board[dest_y][dest_x].nil?
+                move(piece, current_pos, dest_pos)
+                return true
+              end 
             end
           end
-          puts "Invalid move (piece can't move), please try again"
-          return false
-        else
-          puts "Invalid move (piece can't move), please try again"
-          return false
         end
+
+        puts "Invalid move (piece can't move), please try again"
+        return false
       end
     else
-      puts "Invalid chess piece, please try again"
+      puts "No such piece exist at described location, please try again"
       return false
     end
   end
@@ -203,6 +204,50 @@ class ChessGame
     when "Q" 
       @board.board[coor_y][coor_x] = Queen.new(@turn)
     end
+  end
+
+  def checkmate?(current_pos)
+    org_y, org_x = current_pos
+    piece = @board.board[org_y][org_x]
+
+    unless piece.nil?
+      if piece.is_a?(Pawn)
+      else
+        if piece.range_fixed == true
+          piece.move_range.each do |move|
+            r_y, r_x = move
+            dest_y = org_y + r_y
+            dest_x = org_x + r_x
+            current_y = dest_y > org_y ? (org_y + 1) : (dest_y < org_y ? org_y - 1 : org_y)
+            current_x = dest_x > org_x ? (org_x + 1) : (dest_x < org_x ? org_y - 1 : org_x)
+            piece_at_dest = @board.board[dest_y][dest_x]
+            
+            if piece_at_dest.is_a?(King)
+              until current_y == dest_y && current_x == dest_x
+                return false unless @board.board[current_y][current_x].nil?
+
+                if dest_y > current_y
+                  current_y += 1
+                elsif dest_y < current_y
+                  current_y -= 1
+                end
+                if dest_x > current_x
+                  current_x += 1
+                elsif dest_x < current_x
+                  current_x -= 1
+                end
+              end
+              puts "CHECKMATE"
+              return true
+            end
+          end
+        else
+          
+        end
+      end
+    end
+
+    false
   end
 
 end

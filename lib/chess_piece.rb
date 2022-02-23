@@ -1,7 +1,7 @@
 require 'matrix'
 
 class ChessPiece
-  attr_reader :symbol, :key_name, :color
+  attr_reader :symbol, :key_name, :color, :move_range
   
   def initialize()
     @@symbol = ""
