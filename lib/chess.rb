@@ -50,6 +50,7 @@ class ChessGame
       move = gets.chomp()
       return move if move.match?(move_regex)
       puts "Invalid move, please try again"
+      print "Type in your move: "
     end 
   end
 
