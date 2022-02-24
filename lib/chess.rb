@@ -10,12 +10,14 @@ class ChessGame
     @board = Board.new()
     @turn = 'w'
     @message = ''
+    @victory = false
+
     play_game()
   end
 
   def play_game()
-    while(true)
-      system 'clear'
+    loop do
+      # system 'clear'
       puts "        CHESS"
       @board.render_board()
       puts ""
@@ -33,6 +35,16 @@ class ChessGame
         move = get_move()
         key_name, current_pos, dest_pos = decode_move(move)
         valid_move = move_piece(key_name, current_pos, dest_pos)
+      end
+
+      if @victory
+        system 'clear'
+        puts "        CHESS"
+        @board.render_board()
+        puts ""
+
+        puts "#{@turn == 'w' ? "White" : "Black"} won!"
+        break
       end
 
       at_base, row, col = pawn_at_base()
@@ -95,7 +107,6 @@ class ChessGame
     if correct_piece?(key_name, current_pos)
       if piece.movable?(current_pos, dest_pos)
         return true if move(piece, current_pos, dest_pos)
-        return false
       else
         if piece.is_a?(Pawn)
           piece.eat_range.each do |move|
@@ -108,6 +119,7 @@ class ChessGame
             end
           end
         end
+
         puts "Invalid move (piece can't move), please try again"
         return false
       end
@@ -141,6 +153,14 @@ class ChessGame
       if dest_piece.color == @turn
         puts "Can't move, Ally at destination"
         return false
+      elsif dest_piece.is_a?(King) && dest_piece.color != @turn
+        @board.board[dest_y][dest_x] = piece
+        @board.board[current_y][current_x] = nil
+        if piece.is_a?(Pawn)
+          piece.was_moved unless piece.moved
+        end
+        @victory = true
+        return true
       end
     end
 
@@ -232,7 +252,9 @@ class ChessGame
               until dest_y == limit_y && dest_x == limit_x
                 dest_piece = @board.board[dest_y][dest_x]
                 unless dest_piece.nil?
-                  return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                  if dest_piece.is_a?(King) && dest_piece.color != @turn
+                    return true unless pieces_collide?(current_pos, [dest_y, dest_x])
+                  end
                 end
                 dest_x = r_x > 0 ? dest_x + 1 : dest_x - 1
               end
@@ -245,7 +267,9 @@ class ChessGame
               until dest_y == limit_y && dest_x == limit_x
                 dest_piece = @board.board[dest_y][dest_x]
                 unless dest_piece.nil?
-                  return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                  if dest_piece.is_a?(King) && dest_piece.color != @turn
+                    return true unless pieces_collide?(current_pos, [dest_y, dest_x])
+                  end
                 end
                 dest_y = r_y > 0 ? dest_y + 1 : dest_y - 1
               end
@@ -258,7 +282,9 @@ class ChessGame
               until dest_y == limit_y || dest_x == limit_x
                 dest_piece = @board.board[dest_y][dest_x]
                 unless dest_piece.nil?
-                  return true if dest_piece.is_a?(King) && dest_piece.color != @turn
+                  if dest_piece.is_a?(King) && dest_piece.color != @turn
+                    return true unless pieces_collide?(current_pos, [dest_y, dest_x])
+                  end
                 end
                 dest_y = r_y > 0 ? dest_y + 1 : dest_y - 1
                 dest_x = r_x > 0 ? dest_x + 1 : dest_x - 1
@@ -276,20 +302,37 @@ class ChessGame
     org_y, org_x = org_pos
     dest_y, dest_x = dest_pos
     current_y = dest_y > org_y ? (org_y + 1) : (dest_y < org_y ? org_y - 1 : org_y)
-    current_x = dest_x > org_x ? (org_x + 1) : (dest_x < org_x ? org_y - 1 : org_x)
+    current_x = dest_x > org_x ? (org_x + 1) : (dest_x < org_x ? org_x - 1 : org_x)
 
-    until current_y == dest_y && current_x == dest_x
-      return true unless @board.board[current_y][current_x].nil?
+    if current_y == org_y || current_x == org_x
+      until current_y == dest_y && current_x == dest_x
+        return true unless @board.board[current_y][current_x].nil?
 
-      if dest_y > current_y
-        current_y += 1
-      elsif dest_y < current_y
-        current_y -= 1
+        if dest_y > current_y
+          current_y += 1
+        elsif dest_y < current_y
+          current_y -= 1
+        end
+        if dest_x > current_x
+          current_x += 1
+        elsif dest_x < current_x
+          current_x -= 1
+        end
       end
-      if dest_x > current_x
-        current_x += 1
-      elsif dest_x < current_x
-        current_x -= 1
+    else
+      until current_y == dest_y || current_x == dest_x
+        return true unless @board.board[current_y][current_x].nil?
+
+        if dest_y > current_y
+          current_y += 1
+        elsif dest_y < current_y
+          current_y -= 1
+        end
+        if dest_x > current_x
+          current_x += 1
+        elsif dest_x < current_x
+          current_x -= 1
+        end
       end
     end
 
