@@ -145,7 +145,9 @@ class ChessGame
 
     @board.board[dest_y][dest_x] = piece
     @board.board[current_y][current_x] = nil
-    piece.was_moved if piece.is_a?(Pawn)
+    if piece.is_a?(Pawn)
+      piece.was_moved unless piece.moved
+    end
     return true
   end
 

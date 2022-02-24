@@ -90,7 +90,7 @@ class Board
       end
     end
     # board[1].map! { |piece| piece = Pawn.new('b')  }  
-    # board[6].map! { |piece| piece = Pawn.new('w')  } 
+    board[6].map! { |piece| piece = Pawn.new('w')  } 
     board
   end
 end
