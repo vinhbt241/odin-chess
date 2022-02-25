@@ -4,6 +4,7 @@ require_relative '../lib/bishop.rb'
 require_relative '../lib/rook.rb'
 require_relative '../lib/queen.rb'
 require 'matrix'
+require 'yaml'
 
 class ChessGame
   def initialize()
@@ -11,13 +12,11 @@ class ChessGame
     @turn = 'w'
     @message = ''
     @victory = false
-
-    play_game()
   end
 
   def play_game()
     loop do
-      # system 'clear'
+      system 'clear'
       puts "        CHESS"
       @board.render_board()
       puts ""
@@ -52,7 +51,7 @@ class ChessGame
 
       @message = "CHECKMATE!" if checkmate?(dest_pos)
 
-      # switch_turn()
+      switch_turn()
     end
   end
 
@@ -339,6 +338,48 @@ class ChessGame
     return false
   end
 
+  def to_yaml()
+    YAML.dump ({
+      :board => @board,
+      :turn => @turn,
+      :message => @message,
+      :victory => @victory
+    })
+  end
+
+  def save_game(file_name)
+    dir_name = 'save_files'
+    Dir.mkdir(dir_name) unless File.exist?(dir_name)
+
+    save_file = "save_files/#{file_name}.yaml"
+
+    if File.exist?(save_file)
+      print "Save file #{file_name} already exist, do you want to override the content of this save file ? (Y/N): "
+      loop do
+        confirm_override = gets.chomp
+        break if confirm_override == "Y"
+        return if confirm_override == "N"
+        print "Invalid character, please try again: "
+      end
+    end
+
+    save_content = to_yaml()
+    File.open(save_file, 'w') { |f| f.write(save_content) }
+    
+  end
+
+  def display_save_files()
+    dir_name = 'save_files'
+    Dir.mkdir(dir_name) unless File.exist?(dir_name)
+
+    save_files = Dir.glob("#{dir_name}/*")
+    save_files.each_with_index do |save_file, index|
+      puts "#{index + 1}. #{File.basename(save_file).split(".")[0]}"
+    end
+
+  end
+
 end
 
 game = ChessGame.new()
+game.display_save_files()
