@@ -14,6 +14,55 @@ class ChessGame
     @victory = false
   end
 
+  def choose_mode()
+    puts "        CHESS"
+    @board.render_board()
+    puts ""
+    
+    puts "Welcome to CHESS!"
+    puts "To move piece, simply follow this format: #short_name#current_position#destination_position"
+    puts "#short_name: Pawn: none  Knight: N  Rook: R  Bishop: B  Queen: Q  King: K" 
+    puts "#current_position and #destination_position can be extract from the board"  
+    puts "For example, to move left white rock from it's original position up to 2 square, type: Ra1a3"
+    puts ""
+    print "Type N to start a new game, or L to load saved games: "
+    loop do
+      mode = gets.chomp
+      if mode == "N"
+        play_game()
+        break
+      elsif mode == "L"
+        system 'clear'
+        display_save_files()
+        puts ""
+        print "Type in name of save file you want to load from: "
+        loop do 
+          file_name = gets.chomp
+
+          if File.exist?("save_files/#{file_name}.yaml")
+            load_game(file_name)
+            puts "Loading Complete"
+            break
+          end
+          print "Save file does not exist, please try again: "
+        end
+        
+        print "Type C to continue the game: "
+        loop do
+          continue = gets.chomp
+          if continue == "C"
+            play_game()
+            break
+          end
+          print "Invalid command, please try again: "
+        end
+        break
+      end
+
+      print "Invalid command, please try again: "
+    end
+  end
+
   def play_game()
     loop do
       system 'clear'
