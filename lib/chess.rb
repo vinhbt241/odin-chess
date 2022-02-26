@@ -32,8 +32,73 @@ class ChessGame
       until valid_move
         print "Type in your move: "
         move = get_move()
-        key_name, current_pos, dest_pos = decode_move(move)
-        valid_move = move_piece(key_name, current_pos, dest_pos)
+
+        case move
+        when "S"
+          system 'clear'
+          display_save_files()
+          puts ""
+          print "Name your save file: "
+          file_name = gets.chomp
+          save_game(file_name)
+
+          system 'clear'
+          display_save_files()
+          print "Type C to return to the game, or R to exit: "
+          loop do
+            continue = gets.chomp
+
+            if continue == "R"
+              system 'clear'
+              puts "Game closed"
+              return
+            end
+
+            if continue == "C"
+              system 'clear'
+              puts "        CHESS"
+              @board.render_board()
+              puts ""
+              break
+            end
+            print "Invalid command, please try again: "
+          end
+        when "R"
+          system 'clear'
+          puts "Game closed"
+          return
+        when "L"
+          system 'clear'
+          display_save_files()
+          puts ""
+          print "Type in name of save file you want to load from: "
+          loop do 
+            file_name = gets.chomp
+
+            if File.exist?("save_files/#{file_name}.yaml")
+              load_game(file_name)
+              puts "Loading Complete"
+              break
+            end
+            print "Save file does not exist, please try again: "
+          end
+          
+          print "Type C to continue the game: "
+          loop do
+            continue = gets.chomp
+            if continue == "C"
+              system 'clear'
+              puts "        CHESS"
+              @board.render_board()
+              puts ""
+              break
+            end
+            print "Invalid command, please try again: "
+          end
+        else
+          key_name, current_pos, dest_pos = decode_move(move)
+          valid_move = move_piece(key_name, current_pos, dest_pos)
+        end
       end
 
       if @victory
@@ -56,7 +121,8 @@ class ChessGame
   end
 
   def get_move()
-    move_regex = /^[KQBNR]?[a-h][1-8]x?[a-h][1-8][+#]?$/
+    move_regex = /^[KQBNR]?[a-h][1-8]x?[a-h][1-8][+#]?$|^S$|^R$|^L$/
+
     loop do
       move = gets.chomp()
       return move if move.match?(move_regex)
@@ -365,7 +431,6 @@ class ChessGame
 
     save_content = to_yaml()
     File.open(save_file, 'w') { |f| f.write(save_content) }
-    
   end
 
   def display_save_files()
@@ -379,7 +444,22 @@ class ChessGame
 
   end
 
-end
+  def load_game(file_name)
+    dir_name = 'save_files'
+    Dir.mkdir(dir_name) unless File.exist?(dir_name)
+    save_path = "#{dir_name}/#{file_name}.yaml"
 
-game = ChessGame.new()
-game.display_save_files()
+    if File.exist?(save_path)
+      save_file = File.read(save_path)
+      save_content = YAML.load(save_file)
+
+      @board = save_content[:board]
+      @turn = save_content[:turn]
+      @message = save_content[:message]
+      @victory = save_content[:victory]
+    else
+      puts "Save file doest not exist"
+    end
+  end
+
+end
